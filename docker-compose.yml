@@ -1,0 +1,59 @@
+version: '3.5'
+
+services:
+  webapp:
+    build: ./python_app
+    #image: foo/site-to-pdf:latest
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8000:8000
+    networks:
+      - proxy-tier
+      - default
+    environment:
+      SERVICE_SECRET: YOUR_SECRET_HERE
+      DESTINATION_PATH: /data
+      VIRTUAL_HOST: foo.tomaz.me
+      LETSENCRYPT_HOST: foo.tomaz.me
+      LETSENCRYPT_EMAIL: foo@tomaz.me
+    volumes:
+       - "/mnt/data/site_to_pdf_data:/data"
+
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      # Optional uncomment if you also want to put the web service behind basic auth
+      #- ./proxy_app/files/htpasswd:/etc/nginx/htpasswd/<your domain name>:ro
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy-tier
+
+  letsencrypt-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: unless-stopped
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy-tier
+    depends_on:
+      - proxy
+
+volumes:
+  certs:
+  vhost.d:
+  html:
+
+networks:
+  proxy-tier:
