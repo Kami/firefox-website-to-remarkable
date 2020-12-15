@@ -23,11 +23,14 @@ RUN apt-get update -y
 # Needed by pdfkit
 RUN apt-get install -y wkhtmltopdf
 # Needed by lxml
-RUN apt-get install -y build-essential libxml2-dev libxslt-dev libxmlsec1 lib32z1-dev
+RUN apt-get install -y build-essential libxml2-dev libxslt-dev libxmlsec1 lib32z1-dev libffi-dev
 
 RUN pip install --upgrade pip
 COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
+
+# Workaround for gevent Python compatibility issue
+RUN pip install -U --force-reinstall --no-binary :all: gevent
 
 # Copy app files
 COPY . /app
