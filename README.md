@@ -58,6 +58,25 @@ make sure you modify necessary environment variables.
   to add another layer of protection by putting Nginx basic auth in-front of it (that's again trivial
   to do with nginx proxy running inside Docker container).
 
+## Note on the generated PDF contrast
+
+As mentioned above, the web app will generate a grayscale PDF. Depending on the original website
+font color, etc. the output PDF may have a low contrast which may be hard to read on Remarkable.
+
+To work around that, this repo contains a script which utilizes imagemagick to darken the
+generated PDF and increase the contrast.
+
+In fact, this script may also come handy in many other situations where you have a low contrast PDF
+which is not easy to read on Remarkable.
+
+Before darken:
+
+![original](https://user-images.githubusercontent.com/125088/102696665-30d41180-4230-11eb-9157-5fe1c34f9243.jpg)
+
+After darken:
+
+![after_darken](https://user-images.githubusercontent.com/125088/102696667-33366b80-4230-11eb-8841-76525d0e2ab1.jpg)
+
 ## Copyright, License, and Contributors Agreement
 
 Copyright 2020 Tomaz Muraus
